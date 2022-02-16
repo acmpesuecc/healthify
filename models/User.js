@@ -12,7 +12,10 @@ const schema = new mongoose.Schema({
     },
     phone_number : "string",
     email : "string",
-    medicines : "array", //Ids of medicines
+    medicines : [{
+        id : "string",
+        name : "string",
+    }], //Ids of medicines
 
 });
 const User = mongoose.model("User", schema);

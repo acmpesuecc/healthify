@@ -6,7 +6,7 @@ const schema = new mongoose.Schema({
     everyday : "boolean", 
     frequency : "number", 
     time_of_day : "string", // morning, afternoon, evening
-    time : "time", 
+    time : "string", // Need to be converted to time 
     interval : "number", // If its not a daily medicine, then this is the number of days ; If its a daily medicine, then this is the number of hours between two doses.
     start_date : "date",
     end_date : "date",
