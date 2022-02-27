@@ -1,6 +1,5 @@
 const express = require("express");
 const app = express();
-const mongoose = require("mongoose");
 const UserModel = require("./models/User");
 require("dotenv").config();
 
@@ -11,12 +10,24 @@ app.use(cors());
 
 const port = process.env.PORT || 3001;
 
-mongoose.connect(process.env.MONGO_URI, () =>
-  console.log("Connected to database")
-);
-
 app.get("/", (req, res) => {
-  res.send("ISA rod bro");
+  res.send("Welcome!");
+});
+
+app.post("/register", (req, res) => {
+  try {
+    console.log("Register route called!");
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+app.post("/login", (req, res) => {
+  try {
+    console.log("Login route called!");
+  } catch (err) {
+    console.log(err);
+  }
 });
 
 app.listen(3001, () => {
