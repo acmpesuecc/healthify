@@ -20,16 +20,11 @@ export default function Dashboard() {
       <ActionButton
         buttonColor="#2d3b6c"
         size={0.15 * width}
-        renderIcon={(active) =>
-          active ? (
-            <Icon name="add" style={styles.actionButtonIcon} />
-          ) : (
-            <Icon name="search" style={styles.actionButtonIcon} />
-          )
+        renderIcon={() => <Icon name="camera-alt" style={styles.actionButtonIcon} />
         }
         style={styles.actionButton}
       >
-        <ActionButton.Item
+        {/* <ActionButton.Item
           buttonColor="#2d3b6c"
           title="Scan the name of the medicine"
           onPress={() => console.log("Scan")}
@@ -42,7 +37,7 @@ export default function Dashboard() {
           onPress={() => console.log("Type")}
         >
           <Icon name="keyboard" style={styles.actionButtonIcon} />
-        </ActionButton.Item>
+        </ActionButton.Item> */}
       </ActionButton>
     </View>
   );
