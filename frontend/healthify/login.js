@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -9,10 +9,15 @@ import {
   Button,
   TouchableOpacity,
 } from "react-native";
+import axios from "axios";
 
 export default function App() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  useEffect(() => {
+    setErrorMessage("");
+  }, [email, password]);
 
   return (
     <View style={styles.container}>
@@ -41,8 +46,36 @@ export default function App() {
       <TouchableOpacity>
         <Text style={styles.forgot_button}>Forgot Password?</Text>
       </TouchableOpacity>
+      <View style={{ marginBottom: 20 }}>
+        <Text>
+          {errorMessage && <Text style={styles.error}>{errorMessage}</Text>}
+        </Text>
+      </View>
 
-      <TouchableOpacity style={styles.loginBtn}>
+      <TouchableOpacity
+        style={styles.loginBtn}
+        onPress={async () => {
+          await axios
+            .post(
+              "http://192.168.1.18:3001/login",
+              { email: email, password: password },
+              {
+                headers: {
+                  Accept: "application/json",
+                  "Content-Type": "application/json;charset=UTF-8",
+                },
+              }
+            )
+            .then((response) => {
+              console.log(response.status);
+              console.log(response.data.token);
+            })
+            .catch((error) => {
+              setErrorMessage(error.response.data);
+              console.log(errorMessage);
+            });
+        }}
+      >
         <Text style={styles.loginText}>LOGIN</Text>
       </TouchableOpacity>
     </View>
@@ -65,7 +98,7 @@ const styles = StyleSheet.create({
   },
 
   inputView: {
-    backgroundColor: "#FFC0CB",
+    backgroundColor: "#f2f2f2",
     borderRadius: 30,
     width: "70%",
     height: 45,
@@ -75,7 +108,7 @@ const styles = StyleSheet.create({
 
   TextInput: {
     flex: 1,
-    textAlign: "center",
+    textAlign: "left",
   },
 
   forgot_button: {
@@ -89,6 +122,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 10,
-    backgroundColor: "#FF1493",
+    backgroundColor: "#00B0FF",
+  },
+  error: {
+    color: "red",
+    fontSize: 16,
   },
 });
