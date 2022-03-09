@@ -9,6 +9,7 @@ const schema = new mongoose.Schema({
     city: "string",
     pincode: "number",
   },
+  verified : "boolean",
   phone_number: "string",
   email: "string",
   medicines: [
