@@ -17,33 +17,31 @@ app.use(cors());
 const port = process.env.PORT || 3001;
 
 function sendMail(output, to) {
-
-let transporter = nodemailer.createTransport({
-  service: "Gmail",
-  auth: {
-    user: process.env.EMAIL_HOST_USERNAME,
-    pass: process.env.EMAIL_HOST_PASSWORD,
-  },
-});
-
+  let transporter = nodemailer.createTransport({
+    service: "Gmail",
+    auth: {
+      user: process.env.EMAIL_HOST_USERNAME,
+      pass: process.env.EMAIL_HOST_PASSWORD,
+    },
+  });
 
   // setup email data with unicode symbols
   let mailOptions = {
-      from: '"Anirudh from Healthify" <healthify2022@gmail.com>', // sender address
-      to: to, // list of receivers
-      subject: "Healthify Contact", // Subject line
-      text: "This is a computer generated email, please do not reply to this!", // plain text body
-      html: output // html body
+    from: '"Anirudh from Healthify" <healthify2022@gmail.com>', // sender address
+    to: to, // list of receivers
+    subject: "Healthify Contact", // Subject line
+    text: "This is a computer generated email, please do not reply to this!", // plain text body
+    html: output, // html body
   };
 
   // send mail with defined transport object
   transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-          return console.log(error);
-      }
-      console.log("Message sent: %s", info.messageId);
-      console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-      console.log("Email has been sent");
+    if (error) {
+      return console.log(error);
+    }
+    console.log("Message sent: %s", info.messageId);
+    console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+    console.log("Email has been sent");
   });
 }
 
@@ -71,7 +69,7 @@ app.post("/register", async (req, res) => {
       dob,
       gender,
       password: encryptedPassword,
-      verified:false,
+      verified: false,
       phone_number,
       email: email.toLowerCase(),
     });
@@ -83,11 +81,10 @@ app.post("/register", async (req, res) => {
     //   enc.signOptions
     // );
     var output =
-    "Click on below link to verify <b> => http://192.168.1.18:3001/verifyuser/" +
-    user._id;
+      "Click on below link to verify <b> => http://192.168.1.18:3001/verifyuser/" +
+      user._id;
     //Send Email
-    sendMail(output, email);// After this, send a flag to user to verify email
-    
+    sendMail(output, email); // After this, send a flag to user to verify email
 
     // return new user
     res.status(201).json(user);
@@ -98,24 +95,37 @@ app.post("/register", async (req, res) => {
 
 app.get("/verifyuser/*", function (req, res) {
   var idx = req.url.slice(12, 1000);
-
-  User.updateOne({
-      _id: idx
-  }, {
-      $set: {
-          verified: true
-      }
-  },
-      function (err, obj1) {
+  //check if user is verified
+  User.findOne({ _id: idx }, function (err, user) {
+    if (err) {
+      console.log(err);
+    }
+    if (user.verified) {
+      res.send("You are already verified. Please login");
+    } else {
+      User.updateOne(
+        {
+          _id: idx,
+        },
+        {
+          $set: {
+            verified: true,
+          },
+        },
+        function (err, obj1) {
           if (err) {
-              console.log("ERROR" + err);
+            console.log("ERROR" + err);
           } else {
-              console.log("VERIFIED");
-              // console.log(obj1);
-              res.send("Done")
+            console.log("VERIFIED");
+            // console.log(obj1);
+            res.send(
+              "Your account is now verified. Welcome to Healthify! You can now login."
+            );
           }
-      }
-  );
+        }
+      );
+    }
+  });
 });
 
 app.post("/login", async (req, res) => {
@@ -140,31 +150,36 @@ app.post("/login", async (req, res) => {
             email: user.email,
             dob: user.dob,
             name: user.name,
-           },
+          },
           process.env.TOKEN_KEY,
           enc.signOptions
         );
-  
+
         // save user token in database
         user.token = token;
-  
+
         // user
         // res.status(200).json({user:user,token:token});
-        jwt.verify(token, process.env.TOKEN_KEY, enc.verifyOptions, (err, decoded) => {
-          if (err) {
-            res.status(401).send("Invalid Token");
+        jwt.verify(
+          token,
+          process.env.TOKEN_KEY,
+          enc.verifyOptions,
+          (err, decoded) => {
+            if (err) {
+              res.status(401).send("Invalid Token");
+            }
+            res.status(200).json({ token });
           }
-          res.status(200).json({ token });
-        });
+        );
       } else {
         console.log("User not found");
-        res.status(400)
+        res
+          .status(400)
           .send(
             "Invalid Credentials: Either user does not exist or password is incorrect"
           );
       }
     }
-  
   } catch (err) {
     console.log(err);
   }
