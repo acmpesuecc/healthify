@@ -24,6 +24,7 @@ function sendMail(output, to) {
       pass: process.env.EMAIL_HOST_PASSWORD,
     },
   });
+  
 
   // setup email data with unicode symbols
   let mailOptions = {
