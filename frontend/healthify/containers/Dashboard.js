@@ -1,27 +1,57 @@
-import { StyleSheet, View, Dimensions, LogBox, Image, Text, TouchableOpacity } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Dimensions,
+  LogBox,
+  Image,
+  Text,
+  TouchableOpacity,
+  SafeAreaView,
+  StatusBar,
+  TextInput,
+} from "react-native";
 import ActionButton from "react-native-action-button";
 import Icon from "react-native-vector-icons/MaterialIcons";
-import React, { useEffect } from "react";
+import Autocomplete from "react-native-autocomplete-input";
+import React, { useEffect, useState } from "react";
+import SearchBar from "./searchBar";
 var { height, width } = Dimensions.get("window");
 
 export default function Dashboard() {
+  //meds
+  const [meds, setMeds] = useState([]);
+  // For Filtered Data
+  const [filteredFilms, setFilteredFilms] = useState([]);
+  // For Selected Data
+  const [selectedValue, setSelectedValue] = useState({});
   useEffect(() => {
     LogBox.ignoreLogs(["Animated: `useNativeDriver`"]);
   }, []);
   return (
     <View style={styles.container}>
+      {/* <Autocomplete
+        style={styles.search}
+        autoCapitalize="none"
+        autoCorrect={false}
+        containerStyle={styles.autocompleteContainer}
+        // Data to show in suggestion
+      /> */}
+      {/* <TextInput style={styles.search}></TextInput> */}
+      <SearchBar />
       <TouchableOpacity disabled style={styles.recentCard}>
         <Text style={styles.heading}>You have no search history</Text>
         <Text style={styles.subHeading}>
-          You can search for medicine prices by clicking on the search button on the bottom right corner
-          </Text>
-        <Image source={require("./assets/wait.png")} style={styles.image} />
+          You can search for medicine prices by clicking on the search button on
+          the bottom right corner
+        </Text>
+        <Image source={require("../assets/wait.png")} style={styles.image} />
       </TouchableOpacity>
       <ActionButton
         buttonColor="#2d3b6c"
         size={0.15 * width}
-        renderIcon={() => <Icon name="camera-alt" style={styles.actionButtonIcon} />
-        }
+        renderIcon={() => (
+          <Icon name="camera-alt" style={styles.actionButtonIcon} />
+        )}
         style={styles.actionButton}
       >
         {/* <ActionButton.Item
@@ -50,6 +80,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  search: {
+    height: 40,
+    width: width * 0.7,
+    margin: 12,
+    borderWidth: 1,
+    padding: 10,
+  },
   text: {
     fontSize: 30,
     color: "#99dfb2",
@@ -59,7 +96,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginTop: 0.05 * height,
     color: "#2d3c6c",
-    
   },
   subHeading: {
     fontSize: 0.015 * height,
@@ -67,7 +103,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     textAlign: "center",
     padding: 0.05 * height,
-
   },
   actionButtonIcon: {
     fontSize: 0.03 * height,
@@ -81,12 +116,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: width * 0.9,
     borderRadius: 0.05 * width,
-
   },
   image: {
     flex: 0.8,
     resizeMode: "contain",
     width: width * 0.9,
     height: height,
-  }
+  },
 });
