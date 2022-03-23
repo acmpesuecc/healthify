@@ -10,11 +10,10 @@ import {
   StatusBar,
   TextInput,
 } from "react-native";
-import ActionButton from "react-native-action-button";
-import Icon from "react-native-vector-icons/MaterialIcons";
-import Autocomplete from "react-native-autocomplete-input";
 import React, { useEffect, useState } from "react";
-import SearchBar from "./searchBar";
+import { Feather, Entypo } from "@expo/vector-icons";
+import axios from "axios";
+import NoSearchHistoryCard from "./noSearchHistory";
 var { height, width } = Dimensions.get("window");
 
 export default function Dashboard() {
@@ -27,49 +26,66 @@ export default function Dashboard() {
   useEffect(() => {
     LogBox.ignoreLogs(["Animated: `useNativeDriver`"]);
   }, []);
+  const [text, setText] = useState("");
+
+  useEffect(() => {
+    const loadMeds = async () => {
+      const response = await axios.get(
+        `https://www.mims.com/autocomplete?countryCode=IN&query=${text}`
+      );
+      setMeds(response.data.suggestions.slice(0, 10));
+      // console.log(meds[0].value);
+    };
+    loadMeds();
+  });
+
+  const onChangeHandler = (text) => {
+    setText(text);
+  };
+
+  const show = () => {
+    if (meds != null) {
+      return meds.map((med, i) => (
+        <View key={i} style={styles.suggestionsContainer}>
+          <Text key={i} style={styles.suggestions}>
+            {med.value}
+          </Text>
+        </View>
+      ));
+    } else return <NoSearchHistoryCard />;
+  };
   return (
-    <View style={styles.container}>
-      {/* <Autocomplete
-        style={styles.search}
-        autoCapitalize="none"
-        autoCorrect={false}
-        containerStyle={styles.autocompleteContainer}
-        // Data to show in suggestion
-      /> */}
-      {/* <TextInput style={styles.search}></TextInput> */}
-      <SearchBar />
-      <TouchableOpacity disabled style={styles.recentCard}>
-        <Text style={styles.heading}>You have no search history</Text>
-        <Text style={styles.subHeading}>
-          You can search for medicine prices by clicking on the search button on
-          the bottom right corner
-        </Text>
-        <Image source={require("../assets/wait.png")} style={styles.image} />
-      </TouchableOpacity>
-      <ActionButton
-        buttonColor="#2d3b6c"
-        size={0.15 * width}
-        renderIcon={() => (
-          <Icon name="camera-alt" style={styles.actionButtonIcon} />
-        )}
-        style={styles.actionButton}
-      >
-        {/* <ActionButton.Item
-          buttonColor="#2d3b6c"
-          title="Scan the name of the medicine"
-          onPress={() => console.log("Scan")}
-        >
-          <Icon name="camera-alt" style={styles.actionButtonIcon} />
-        </ActionButton.Item>
-        <ActionButton.Item
-          buttonColor="#2d3b6c"
-          title="Type in the name of the medicine"
-          onPress={() => console.log("Type")}
-        >
-          <Icon name="keyboard" style={styles.actionButtonIcon} />
-        </ActionButton.Item> */}
-      </ActionButton>
-    </View>
+    <SafeAreaView style={styles.container}>
+      {/* <SearchBar /> */}
+      <View style={styles.searchContainer}>
+        <View style={styles.searchBar}>
+          {/* search Icon */}
+          <Feather
+            name="search"
+            size={20}
+            color="black"
+            style={{ marginLeft: 1 }}
+          />
+          {/* Input field */}
+          <TextInput
+            style={styles.input}
+            placeholder="Search"
+            value={text}
+            onChangeText={(text) => onChangeHandler(text)}
+          />
+        </View>
+      </View>
+      {meds != null
+        ? meds.map((med, i) => (
+            <View key={i} style={styles.suggestionsContainer}>
+              <Text key={i} style={styles.suggestions}>
+                {med.value}
+              </Text>
+            </View>
+          ))
+        : null}
+      {text == "" && <NoSearchHistoryCard />}
+    </SafeAreaView>
   );
 }
 
@@ -79,6 +95,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#85b8cb",
     alignItems: "center",
     justifyContent: "center",
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight + 30 : 0,
   },
   search: {
     height: 40,
@@ -91,36 +108,38 @@ const styles = StyleSheet.create({
     fontSize: 30,
     color: "#99dfb2",
   },
-  heading: {
-    fontSize: 0.03 * height,
-    fontWeight: "bold",
-    marginTop: 0.05 * height,
-    color: "#2d3c6c",
-  },
-  subHeading: {
-    fontSize: 0.015 * height,
-    color: "#5b7792",
-    justifyContent: "center",
-    textAlign: "center",
-    padding: 0.05 * height,
-  },
-  actionButtonIcon: {
-    fontSize: 0.03 * height,
-    height: 22,
-    color: "white",
-  },
-  recentCard: {
-    flex: 0.6,
-    backgroundColor: "white",
+  searchContainer: {
+    // position: "absolute",
+    justifyContent: "flex-start",
     alignItems: "center",
-    justifyContent: "center",
-    width: width * 0.9,
-    borderRadius: 0.05 * width,
+    // flexDirection: "row",
+    width: width * 0.8,
   },
-  image: {
-    flex: 0.8,
-    resizeMode: "contain",
-    width: width * 0.9,
-    height: height,
+  searchBar: {
+    padding: 10,
+    flexDirection: "row",
+    width: "95%",
+    backgroundColor: "#d9dbda",
+    borderRadius: 15,
+    alignItems: "center",
+  },
+
+  input: {
+    fontSize: 20,
+    marginLeft: 10,
+    width: "90%",
+  },
+  suggestions: {
+    flexDirection: "column",
+    padding: 5,
+    textAlign: "center",
+  },
+  suggestionsContainer: {
+    zIndex: 2,
+    backgroundColor: "#d9dbde",
+    borderBottomColor: "white",
+    width: width * 0.7,
+    margin: 2,
+    borderRadius: 20,
   },
 });
