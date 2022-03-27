@@ -11,7 +11,7 @@ export default function FirstScreen() {
       </Text> */}
       <View style= {{marginBottom:0.2*height}}>
       <Image
-        source={require("./assets/new_screen.png")}
+        source={require("../assets/new_screen.png")}
         style={{
           resizeMode: "contain",
           width: width*1.1,

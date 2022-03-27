@@ -9,25 +9,28 @@ import {
 import { Button, Card } from "react-native-elements";
 var { height, width } = Dimensions.get("window");
 
-export default function WelcomeScreen() {
+export default function WelcomeScreen({navigation}) {
+
+  const pressHandler=()=>{
+    navigation.navigate('SignUp');
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Welcome to Healthify</Text>
       <Image
-        source={require("./assets/hi.gif")}
+        source={require("../assets/hi.gif")}
         style={{
           resizeMode: "contain",
           width: 1.2 * width,
-          height: 0.8 * height,
-          marginTop: 0.3 * height,
+          height: 0.6 * height,
+          marginTop: 0.33 * height,
         }}
       />
       <Button
         title="Get Started"
         buttonStyle={styles.button}
-        onPress={() => {
-          console.log("Pressed");
-        }}
+        onPress={ pressHandler }
       />
       {/* <Text style={{fontSize: 0.03*height,fontWeight:"bold",color:"#1d2366",}}>
         Compare Medicine Prices 
