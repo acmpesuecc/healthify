@@ -11,6 +11,7 @@ const cors = require("cors");
 const User = require("./models/User");
 const { emit } = require("./models/User");
 const nodemailer = require("nodemailer");
+const puppeteer = require("puppeteer");
 app.use(express.json());
 app.use(cors());
 
@@ -24,7 +25,6 @@ function sendMail(output, to) {
       pass: process.env.EMAIL_HOST_PASSWORD,
     },
   });
-  
 
   // setup email data with unicode symbols
   let mailOptions = {
@@ -185,6 +185,59 @@ app.post("/login", async (req, res) => {
     console.log(err);
   }
 });
+
+//Scrape data from websites
+
+async function getNetMeds(medName) {
+  const browser = await puppeteer.launch({ headless: true });
+  const page = await browser.newPage()
+  await page.goto("https://www.netmeds.com/catalogsearch/result?q="+medName);
+
+// await page.screenshot({path: 'screenshot.png'});
+
+  const names = await page.evaluate(() => {
+    return Array.from(document.querySelectorAll(".info")).map(x => x.innerText)
+  })
+  const prices = await page.evaluate(() => {
+    return Array.from(document.querySelectorAll("span.final-price")).map(x => x.innerText)
+  })
+  const images = await page.evaluate(() => {
+    return Array.from(document.querySelectorAll(".drug_img img")).map(x => x.src) 
+  })
+
+  for(i=0;i<names.length;i++){
+    console.log(`${names[i]}: price:${prices[i]}, image:${images[i]}`)
+   }
+  await browser.close()
+ 
+}
+async function getPharmeasy(medName) {
+  const browser = await puppeteer.launch({ headless: true });
+  const page = await browser.newPage()
+  await page.setViewport({ width: 1440, height: 2100 })
+  await page.goto("https://pharmeasy.in/search/all?name="+medName);
+
+// await page.screenshot({path: 'screenshot.png'});
+
+  const names = await page.evaluate(() => {
+    return Array.from(document.querySelectorAll(".ooufh")).map(x => x.innerText).splice(0,10)
+  })
+  const prices = await page.evaluate(() => {
+    return Array.from(document.querySelectorAll("._1_yM9")).map(x => x.innerText).splice(0,10)
+  })
+  const images = await page.evaluate(() => {
+    return Array.from(document.querySelectorAll("img.pe-lazy")).map(x => x.src)
+  })
+
+  for(i=0;i<names.length;i++){
+   console.log(`${names[i]}: price:${prices[i]}, image:${images[i]}`)
+  }
+  await browser.close()
+ 
+}
+
+// getPharmeasy("crocin");
+getNetMeds("crocin");
 
 app.listen(3001, () => {
   console.log(`Server is running at ${port}`);
