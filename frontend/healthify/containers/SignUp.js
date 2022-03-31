@@ -32,6 +32,7 @@ export default class SignUp extends React.Component {
     let regex = /^[a-zA-Z]+$/;
     let isvalid = regex.test(this.state.name);
     console.log(isvalid);
+    
     if (!isvalid) {
       this.setState({
         nameError: "Name field cant be empty and it must be alphabets only",

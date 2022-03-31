@@ -22,38 +22,42 @@ export default function Dashboard() {
   // For Filtered Data
   const [filteredFilms, setFilteredFilms] = useState([]);
   // For Selected Data
-  const [selectedValue, setSelectedValue] = useState({});
+  const [selectedValue, setSelectedValue] = useState(null);
   useEffect(() => {
     LogBox.ignoreLogs(["Animated: `useNativeDriver`"]);
   }, []);
   const [text, setText] = useState("");
+  // const [search, setSearch] = useState([]);
 
-  useEffect(() => {
-    const loadMeds = async () => {
-      const response = await axios.get(
-        `https://www.mims.com/autocomplete?countryCode=IN&query=${text}`
-      );
-      setMeds(response.data.suggestions.slice(0, 10));
-      // console.log(meds[0].value);
-    };
-    loadMeds();
-  });
+  const loadMeds = async () => {
+    const response = await axios.get(
+      `https://www.mims.com/autocomplete?countryCode=IN&query=${text}`
+    );
+    setMeds(response.data.suggestions.slice(0, 10));
+    // console.log(meds[0].value);
+  };
 
   const onChangeHandler = (text) => {
     setText(text);
+    loadMeds();
+    if (text === "") {
+      setMeds(null);
+
+    }
   };
 
-  const show = () => {
-    if (meds != null) {
-      return meds.map((med, i) => (
-        <View key={i} style={styles.suggestionsContainer}>
-          <Text key={i} style={styles.suggestions}>
-            {med.value}
-          </Text>
-        </View>
-      ));
-    } else return <NoSearchHistoryCard />;
-  };
+  // const show = () => {
+  //   if (meds != null) {
+  //     return meds.map((med, i) => (
+  //       <View key={i} style={styles.suggestionsContainer}>
+  //         <Text key={i} style={styles.suggestions}>
+  //           {med.value}
+  //         </Text>
+  //       </View>
+  //     ));
+  //   } else return <NoSearchHistoryCard />;
+  // };
+
   return (
     <SafeAreaView style={styles.container}>
       {/* <SearchBar /> */}
@@ -75,13 +79,32 @@ export default function Dashboard() {
           />
         </View>
       </View>
-      {meds != null
+      {meds != null && text!=""
         ? meds.map((med, i) => (
-            <View key={i} style={styles.suggestionsContainer}>
-              <Text key={i} style={styles.suggestions}>
-                {med.value}
-              </Text>
-            </View>
+            <TouchableOpacity
+              key={i}
+              style={{
+                zIndex: 2,
+                backgroundColor: selectedValue == med.value ? "#565656" : "#d9dbde",
+                borderBottomColor: "white",
+                width: width * 0.7,
+                margin: 2,
+                borderRadius: 10,
+              }}
+              onPress={() => {
+                setSelectedValue(med.value);
+                console.log(med.value);
+              }}
+            >
+              <Text style={
+                {
+                  flexDirection: "column",
+                  padding: 10,
+                  textAlign: "center",
+                  color: selectedValue == med.value ? "white" : "black",
+                }
+              }>{med.value}</Text>
+            </TouchableOpacity>
           ))
         : null}
       {text == "" && <NoSearchHistoryCard />}
@@ -131,7 +154,7 @@ const styles = StyleSheet.create({
   },
   suggestions: {
     flexDirection: "column",
-    padding: 5,
+    padding: 10,
     textAlign: "center",
   },
   suggestionsContainer: {
@@ -140,6 +163,6 @@ const styles = StyleSheet.create({
     borderBottomColor: "white",
     width: width * 0.7,
     margin: 2,
-    borderRadius: 20,
+    borderRadius: 10,
   },
 });

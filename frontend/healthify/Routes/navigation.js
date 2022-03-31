@@ -13,7 +13,7 @@ const screens = {
   WelcomeScreen: {
     screen: WelcomeScreen,
     navigationOptions: {
-      title: "WelcomeScreen",
+      title: "Welcome Screen",
     },
   },
 
@@ -55,7 +55,7 @@ const screens = {
 };
 
 const Navigator = createStackNavigator(screens, {
-  initialRouteName: "WelcomeScreen",
+  initialRouteName: "Dashboard",
 });
 
 export default createAppContainer(Navigator);
