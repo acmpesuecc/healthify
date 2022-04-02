@@ -188,56 +188,100 @@ app.post("/login", async (req, res) => {
 
 //Scrape data from websites
 
+class medDetails {
+  constructor(name, price, image) {
+    this.name = name;
+    this.price = price;
+    this.image = image;
+  }
+}
+
 async function getNetMeds(medName) {
   const browser = await puppeteer.launch({ headless: true });
-  const page = await browser.newPage()
-  await page.goto("https://www.netmeds.com/catalogsearch/result?q="+medName);
+  const page = await browser.newPage();
+  var arr = [];
+  await page.goto("https://www.netmeds.com/catalogsearch/result?q=" + medName);
 
-// await page.screenshot({path: 'screenshot.png'});
+  // await page.screenshot({path: 'screenshot.png'});
 
   const names = await page.evaluate(() => {
-    return Array.from(document.querySelectorAll(".info")).map(x => x.innerText)
-  })
+    return Array.from(document.querySelectorAll(".info")).map(
+      (x) => x.innerText
+    );
+  });
   const prices = await page.evaluate(() => {
-    return Array.from(document.querySelectorAll("span.final-price")).map(x => x.innerText)
-  })
+    return Array.from(document.querySelectorAll("span.final-price")).map(
+      (x) => x.innerText
+    );
+  });
   const images = await page.evaluate(() => {
-    return Array.from(document.querySelectorAll(".drug_img img")).map(x => x.src) 
-  })
+    return Array.from(document.querySelectorAll(".drug_img img")).map(
+      (x) => x.src
+    );
+  });
 
-  for(i=0;i<names.length;i++){
-    console.log(`${names[i]}: price:${prices[i]}, image:${images[i]}`)
-   }
-  await browser.close()
- 
+  for (i = 0; i < names.length; i++) {
+    // console.log(`${names[i]}: price:${prices[i]}, image:${images[i]}`);
+    var item = new medDetails(names[i], prices[i], images[i]);
+    arr.push(item);
+  }
+  await browser.close();
+  result = JSON.stringify(arr);
+  return result;
 }
 async function getPharmeasy(medName) {
   const browser = await puppeteer.launch({ headless: true });
-  const page = await browser.newPage()
-  await page.setViewport({ width: 1440, height: 2100 })
-  await page.goto("https://pharmeasy.in/search/all?name="+medName);
-
-// await page.screenshot({path: 'screenshot.png'});
+  const page = await browser.newPage();
+  await page.setViewport({ width: 1440, height: 2100 });
+  await page.goto("https://pharmeasy.in/search/all?name=" + medName);
+  var arr = [];
+  // await page.screenshot({path: 'screenshot.png'});
 
   const names = await page.evaluate(() => {
-    return Array.from(document.querySelectorAll(".ooufh")).map(x => x.innerText).splice(0,10)
-  })
+    return Array.from(document.querySelectorAll(".ooufh"))
+      .map((x) => x.innerText)
+      .splice(0, 10);
+  });
   const prices = await page.evaluate(() => {
-    return Array.from(document.querySelectorAll("._1_yM9")).map(x => x.innerText).splice(0,10)
-  })
+    return Array.from(document.querySelectorAll("._1_yM9"))
+      .map((x) => x.innerText)
+      .splice(0, 10);
+  });
   const images = await page.evaluate(() => {
-    return Array.from(document.querySelectorAll("img.pe-lazy")).map(x => x.src)
-  })
+    return Array.from(document.querySelectorAll("img.pe-lazy")).map(
+      (x) => x.src
+    );
+  });
 
-  for(i=0;i<names.length;i++){
-   console.log(`${names[i]}: price:${prices[i]}, image:${images[i]}`)
+  for (i = 0; i < names.length; i++) {
+    // console.log(`${names[i]}: price:${prices[i]}, image:${images[i]}`);
+    var item = new medDetails(names[i], prices[i], images[i]);
+    arr.push(item);
   }
-  await browser.close()
- 
+  await browser.close();
+  result = JSON.stringify(arr);
+  return result;
 }
 
 // getPharmeasy("crocin");
-getNetMeds("crocin");
+// getNetMeds("crocin");
+// Example requests
+// http://localhost:3001/getMeds?medicine=dolo&source=pharmeasy
+// http://localhost:3001/getMeds?medicine=crocin&source=netmeds
+
+app.get("/getMeds", async (req, res) => {
+  try {
+    // Pass medicine name as a parameter in the URL
+    medName = req.query.medicine;
+    source = req.query.source;
+    if (source == "netmeds") medicines = await getNetMeds(medName);
+    else if (source == "pharmeasy") medicines = await getPharmeasy(medName);
+    else res.status(400).end("Invalid query");
+    res.end(medicines);
+  } catch (err) {
+    console.log(err);
+  }
+});
 
 app.listen(3001, () => {
   console.log(`Server is running at ${port}`);
