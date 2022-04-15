@@ -270,14 +270,17 @@ async function getPharmeasy(medName) {
 // http://localhost:3001/getMeds?medicine=crocin&source=netmeds
 
 app.get("/getMeds", async (req, res) => {
+  // console.log("here in get meds");
   try {
     // Pass medicine name as a parameter in the URL
     medName = req.query.medicine;
     source = req.query.source;
+
     if (source == "netmeds") medicines = await getNetMeds(medName);
     else if (source == "pharmeasy") medicines = await getPharmeasy(medName);
     else res.status(400).end("Invalid query");
     res.end(medicines);
+    // console.log(medicines);
   } catch (err) {
     console.log(err);
   }
