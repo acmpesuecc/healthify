@@ -1,6 +1,5 @@
 const express = require("express");
 const app = express();
-const UserModel = require("./models/User");
 require("./config/connect").connect();
 require("dotenv").config();
 var bcrypt = require("bcryptjs");
@@ -9,7 +8,6 @@ const auth = require("./middleware/auth");
 const enc = require("./config/encryptionConfig.js");
 const cors = require("cors");
 const User = require("./models/User");
-const { emit } = require("./models/User");
 const nodemailer = require("nodemailer");
 const puppeteer = require("puppeteer");
 app.use(express.json());
@@ -226,8 +224,8 @@ async function getNetMeds(medName) {
     arr.push(item);
   }
   await browser.close();
-  result = JSON.stringify(arr);
-  return result;
+  // result = JSON.stringify(arr);
+  return arr;
 }
 async function getPharmeasy(medName) {
   const browser = await puppeteer.launch({ headless: true });
@@ -259,8 +257,8 @@ async function getPharmeasy(medName) {
     arr.push(item);
   }
   await browser.close();
-  result = JSON.stringify(arr);
-  return result;
+  // result = JSON.stringify(arr);
+  return arr;
 }
 
 // getPharmeasy("crocin");
@@ -268,24 +266,6 @@ async function getPharmeasy(medName) {
 // Example requests
 // http://localhost:3001/getMeds?medicine=dolo&source=pharmeasy
 // http://localhost:3001/getMeds?medicine=crocin&source=netmeds
-
-app.get("/getMeds", async (req, res) => {
-  // console.log("here in get meds");
-  try {
-    // Pass medicine name as a parameter in the URL
-    medName = req.query.medicine;
-    source = req.query.source;
-
-    if (source == "netmeds") medicines = await getNetMeds(medName);
-    else if (source == "pharmeasy") medicines = await getPharmeasy(medName);
-    else res.status(400).end("Invalid query");
-    res.end(medicines);
-    // console.log(medicines);
-  } catch (err) {
-    console.log(err);
-  }
-});
-
 //Chedk similarity of two strings based on levenshtein distance (Stackoverflow)
 function similarity(s1, s2) {
   var longer = s1;
@@ -324,12 +304,59 @@ function editDistance(s1, s2) {
   }
   return costs[s2.length];
 }
-console.log(
-  similarity(
-    "crocin pain relief tablet 15's",
-    "crocin advance 500mg 20 tablets"
-  )
-); //Remove Strip Of, Bottle Of from the name if it has
+
+app.get("/getMeds", async (req, res) => {
+  // console.log("here in get meds");
+  try {
+    // Pass medicine name as a parameter in the URL
+    medName = req.query.medicine;
+    if (medName == null) {
+      res.status(400).send("Please enter a medicine name");
+    }
+    //if medName has space
+    else if (medName.indexOf(" ") != -1) {
+      medName = medName.replace(" ", "+");
+    }
+
+    // console.log("medName: " + medName);
+
+    net_meds_medicines = await getNetMeds(medName);
+    pharm_easy_medicines = await getPharmeasy(medName);
+    all_med_details = net_meds_medicines.concat(pharm_easy_medicines);
+    // console.log(all_med_details);
+    medName = medName.replace("+", " ");
+
+    //sort the medicine names without Strip of , Bottle of , by levenshtein distance by using the levenshtein distance function with medName
+    var sorted_meds = all_med_details.sort(function (a, b) {
+      // console.log(similarity(medName, a.name.replace("Strip Of ", "").replace("Bottle Of ", "")));
+      return (
+        similarity(
+          medName,
+          a.name.replace("Strip Of ", "").replace("Bottle Of ", "")
+        ) -
+        similarity(
+          medName,
+          b.name.replace("Strip Of ", "").replace("Bottle Of ", "")
+        )
+      );
+    });
+    // console.log(sorted_meds);
+    //Remove all the medicines which do not contain the medName ignoring case
+    sorted_meds = sorted_meds.filter(function (item) {
+      return item.name
+        .toLowerCase()
+        .includes(medName.toLowerCase().split(" ")[0]);
+    });
+    console.log(sorted_meds);
+
+    // console.log(sorted_meds);
+    res.end(JSON.stringify(sorted_meds));
+    // console.log(medicines);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 app.listen(3001, () => {
   console.log(`Server is running at ${port}`);
 });

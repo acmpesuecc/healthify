@@ -15,7 +15,13 @@ import { Feather, Entypo } from "@expo/vector-icons";
 import axios from "axios";
 import NoSearchHistoryCard from "./noSearchHistory";
 var { height, width } = Dimensions.get("window");
+let meds_array = [];
 
+async function searchMed(medicine){
+  const res = await axios.get(`http://192.168.1.18:3001/getMeds?medicine=${medicine}`);
+  meds_array = res.data;
+  console.log(meds_array);
+}
 export default function Dashboard() {
   //meds
   const [meds, setMeds] = useState([]);
@@ -94,6 +100,7 @@ export default function Dashboard() {
               onPress={() => {
                 setSelectedValue(med.value);
                 console.log(med.value);
+                searchMed(med.value);
               }}
             >
               <Text style={
