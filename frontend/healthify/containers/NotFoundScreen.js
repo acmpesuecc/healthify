@@ -9,12 +9,12 @@ import {
 import { Button } from "react-native-elements";
 var { height, width } = Dimensions.get("window");
 
-export default function NotFoundScreen() {
+export default function NotFoundScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <View style={{ marginTop: -0.1 * height }}>
         <Image
-          source={require("./assets/404.png")}
+          source={require("../assets/404.png")}
           style={{
             flex: 0.7,
             resizeMode: "contain",
@@ -53,7 +53,7 @@ export default function NotFoundScreen() {
           title="Go Back"
           buttonStyle={styles.button}
           onPress={() => {
-            console.log("Pressed");
+            navigation.goBack();
           }}
         />
       </TouchableOpacity>

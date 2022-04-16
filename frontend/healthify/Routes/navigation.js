@@ -1,12 +1,13 @@
 import { createStackNavigator } from "react-navigation-stack";
 import { createAppContainer } from "react-navigation";
 import Dashboard from "../containers/Dashboard";
-//import NotFoundScreen from "../containers/NotFoundScreen";
+import NotFoundScreen from "../containers/NotFoundScreen";
 import FirstScreen from "../containers/FirstScreen";
 import WelcomeScreen from "../containers/WelcomeScreen";
 import SignUp from "../containers/SignUp";
 import Verify from "../Verify";
 import login from "../login";
+import SearchResults from "../containers/searchResults";
 
 const screens = {
   
@@ -51,6 +52,19 @@ const screens = {
       title: "Dashboard",
     },
   },
+  NotFoundScreen: {
+    screen: NotFoundScreen,
+    navigationOptions: {
+      title: "Not Found",
+    },
+  },
+  SearchResults: {
+    screen: SearchResults,
+    navigationOptions: {
+      title: "Search Results",
+    },
+  },
+
   
 };
 

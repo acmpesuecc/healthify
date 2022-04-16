@@ -195,10 +195,12 @@ class medDetails {
 }
 
 async function getNetMeds(medName) {
+  console.log("Scraping data from NetMeds");
   const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
   var arr = [];
   await page.goto("https://www.netmeds.com/catalogsearch/result?q=" + medName);
+  await page.waitForTimeout(1000);
 
   // await page.screenshot({path: 'screenshot.png'});
 
@@ -225,6 +227,8 @@ async function getNetMeds(medName) {
   }
   await browser.close();
   // result = JSON.stringify(arr);
+  console.log("Scraping data from NetMeds completed");
+  console.log(arr);
   return arr;
 }
 async function getPharmeasy(medName) {
@@ -320,8 +324,16 @@ app.get("/getMeds", async (req, res) => {
 
     // console.log("medName: " + medName);
 
-    net_meds_medicines = await getNetMeds(medName);
     pharm_easy_medicines = await getPharmeasy(medName);
+    for (i = 0; i < pharm_easy_medicines.length; i++) {
+      pharm_easy_medicines[i].source = "PharmEasy";
+    }
+    net_meds_medicines = await getNetMeds(medName);
+    //add source netmeds to all objects in the array
+    for (i = 0; i < net_meds_medicines.length; i++) {
+      net_meds_medicines[i].source = "NetMeds";
+    }
+    
     all_med_details = net_meds_medicines.concat(pharm_easy_medicines);
     // console.log(all_med_details);
     medName = medName.replace("+", " ");
@@ -342,14 +354,13 @@ app.get("/getMeds", async (req, res) => {
     });
     // console.log(sorted_meds);
     //Remove all the medicines which do not contain the medName ignoring case
+
     sorted_meds = sorted_meds.filter(function (item) {
       return item.name
         .toLowerCase()
         .includes(medName.toLowerCase().split(" ")[0]);
     });
-    console.log(sorted_meds);
 
-    // console.log(sorted_meds);
     res.end(JSON.stringify(sorted_meds));
     // console.log(medicines);
   } catch (err) {

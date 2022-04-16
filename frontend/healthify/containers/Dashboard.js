@@ -11,18 +11,26 @@ import {
   TextInput,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import { Feather, Entypo } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import axios from "axios";
 import NoSearchHistoryCard from "./noSearchHistory";
 var { height, width } = Dimensions.get("window");
 let meds_array = [];
 
-async function searchMed(medicine){
-  const res = await axios.get(`http://192.168.1.18:3001/getMeds?medicine=${medicine}`);
+async function searchMed(medicine, navigation) {
+  const res = await axios.get(
+    `http://192.168.1.18:3001/getMeds?medicine=${medicine}`
+  );
   meds_array = res.data;
   console.log(meds_array);
+  // console.log(navigation);
+  if (meds_array.length > 0) {
+    navigation.navigate("SearchResults", { data: meds_array });
+  } else {
+    navigation.navigate("NotFoundScreen");
+  }
 }
-export default function Dashboard() {
+export default function Dashboard({ navigation }) {
   //meds
   const [meds, setMeds] = useState([]);
   // For Filtered Data
@@ -39,7 +47,11 @@ export default function Dashboard() {
     const response = await axios.get(
       `https://www.mims.com/autocomplete?countryCode=IN&query=${text}`
     );
-    setMeds(response.data.suggestions.slice(0, 10));
+    //filter the data to not show a tag with href
+    const data = response.data.suggestions.filter((item) => {
+      return item.value.indexOf("href") == -1;
+    });
+    setMeds(data.slice(0, 10));
     // console.log(meds[0].value);
   };
 
@@ -48,7 +60,6 @@ export default function Dashboard() {
     loadMeds();
     if (text === "") {
       setMeds(null);
-
     }
   };
 
@@ -70,12 +81,20 @@ export default function Dashboard() {
       <View style={styles.searchContainer}>
         <View style={styles.searchBar}>
           {/* search Icon */}
-          <Feather
-            name="search"
-            size={20}
-            color="black"
-            style={{ marginLeft: 1 }}
-          />
+          <TouchableOpacity
+            onPress={() => {
+              setSelectedValue(text);
+              console.log(text);
+              searchMed(text, navigation);
+            }}
+          >
+            <Feather
+              name="search"
+              size={20}
+              color="black"
+              style={{ marginLeft: 1 }}
+            />
+          </TouchableOpacity>
           {/* Input field */}
           <TextInput
             style={styles.input}
@@ -85,13 +104,14 @@ export default function Dashboard() {
           />
         </View>
       </View>
-      {meds != null && text!=""
+      {meds != null && text != ""
         ? meds.map((med, i) => (
             <TouchableOpacity
               key={i}
               style={{
                 zIndex: 2,
-                backgroundColor: selectedValue == med.value ? "#565656" : "#d9dbde",
+                backgroundColor:
+                  selectedValue == med.value ? "#565656" : "#d9dbde",
                 borderBottomColor: "white",
                 width: width * 0.7,
                 margin: 2,
@@ -100,17 +120,19 @@ export default function Dashboard() {
               onPress={() => {
                 setSelectedValue(med.value);
                 console.log(med.value);
-                searchMed(med.value);
+                searchMed(med.value, navigation);
               }}
             >
-              <Text style={
-                {
+              <Text
+                style={{
                   flexDirection: "column",
                   padding: 10,
                   textAlign: "center",
                   color: selectedValue == med.value ? "white" : "black",
-                }
-              }>{med.value}</Text>
+                }}
+              >
+                {med.value}
+              </Text>
             </TouchableOpacity>
           ))
         : null}
