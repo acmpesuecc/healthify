@@ -12,7 +12,7 @@ var { height, width } = Dimensions.get("window");
 export default function WelcomeScreen({navigation}) {
 
   const pressHandler=()=>{
-    navigation.navigate('SignUp');
+    navigation.navigate('Dashboard');
   }
 
   return (
@@ -24,7 +24,7 @@ export default function WelcomeScreen({navigation}) {
           resizeMode: "contain",
           width: 1.2 * width,
           height: 0.6 * height,
-          marginTop: 0.33 * height,
+          marginTop: 0.35 * height,
         }}
       />
       <Button

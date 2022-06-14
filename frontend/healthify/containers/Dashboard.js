@@ -4,6 +4,7 @@ import {
   Dimensions,
   LogBox,
   Image,
+  ActivityIndicator,
   Text,
   TouchableOpacity,
   SafeAreaView,
@@ -17,22 +18,11 @@ import NoSearchHistoryCard from "./noSearchHistory";
 var { height, width } = Dimensions.get("window");
 let meds_array = [];
 
-async function searchMed(medicine, navigation) {
-  const res = await axios.get(
-    `http://192.168.1.18:3001/getMeds?medicine=${medicine}`
-  );
-  meds_array = res.data;
-  console.log(meds_array);
-  // console.log(navigation);
-  if (meds_array.length > 0) {
-    navigation.navigate("SearchResults", { data: meds_array });
-  } else {
-    navigation.navigate("NotFoundScreen");
-  }
-}
 export default function Dashboard({ navigation }) {
+  const [loading, setLoading] = useState(false);
   //meds
   const [meds, setMeds] = useState([]);
+
   // For Filtered Data
   const [filteredFilms, setFilteredFilms] = useState([]);
   // For Selected Data
@@ -42,6 +32,20 @@ export default function Dashboard({ navigation }) {
   }, []);
   const [text, setText] = useState("");
   // const [search, setSearch] = useState([]);
+  async function searchMed(medicine, navigation) {
+    const res = await axios.get(
+      `http://192.168.1.18:3001/getMeds?medicine=${medicine}`
+    );
+    meds_array = res.data;
+    setLoading(false);
+    console.log(meds_array);
+    // console.log(navigation);
+    if (meds_array.length > 0) {
+      navigation.navigate("SearchResults", { data: meds_array });
+    } else {
+      navigation.navigate("NotFoundScreen");
+    }
+  }
 
   const loadMeds = async () => {
     const response = await axios.get(
@@ -77,7 +81,14 @@ export default function Dashboard({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
+      {loading && (
+        <View style={styles.spin_container}>
+          <Text style={{color:"white"}}>Please wait while we get the best prices from popular sources..</Text>
+          <ActivityIndicator size="large" color="white" />
+        </View>
+      )}
       {/* <SearchBar /> */}
+      <>
       <View style={styles.searchContainer}>
         <View style={styles.searchBar}>
           {/* search Icon */}
@@ -85,6 +96,7 @@ export default function Dashboard({ navigation }) {
             onPress={() => {
               setSelectedValue(text);
               console.log(text);
+              setLoading(true);
               searchMed(text, navigation);
             }}
           >
@@ -104,6 +116,7 @@ export default function Dashboard({ navigation }) {
           />
         </View>
       </View>
+      </>
       {meds != null && text != ""
         ? meds.map((med, i) => (
             <TouchableOpacity
@@ -120,6 +133,8 @@ export default function Dashboard({ navigation }) {
               onPress={() => {
                 setSelectedValue(med.value);
                 console.log(med.value);
+                setLoading(true);
+
                 searchMed(med.value, navigation);
               }}
             >
@@ -193,5 +208,8 @@ const styles = StyleSheet.create({
     width: width * 0.7,
     margin: 2,
     borderRadius: 10,
+  },
+  spin_container: {
+    padding: 30,
   },
 });

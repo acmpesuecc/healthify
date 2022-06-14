@@ -6,6 +6,7 @@ import {
   Dimensions,
   ScrollView,
   TouchableOpacity,
+  
 } from "react-native";
 
 export default function SearchResults({ navigation }) {
@@ -29,6 +30,7 @@ export default function SearchResults({ navigation }) {
           flexWrap: "wrap",
           justifyContent: "center",
           backgroundColor: "#85b8cb",
+          marginBottom: cardGap,
         }}
       >
         {meds_array.map((med, i) => {

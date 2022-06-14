@@ -7,7 +7,7 @@ import WelcomeScreen from "../containers/WelcomeScreen";
 import SignUp from "../containers/SignUp";
 import Verify from "../Verify";
 import login from "../login";
-import SearchResults from "../containers/searchResults";
+import SearchResults from "../containers/SearchResults";
 
 const screens = {
   
@@ -69,7 +69,7 @@ const screens = {
 };
 
 const Navigator = createStackNavigator(screens, {
-  initialRouteName: "Dashboard",
+  initialRouteName: "WelcomeScreen",
 });
 
 export default createAppContainer(Navigator);

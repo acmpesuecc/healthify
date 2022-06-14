@@ -21,7 +21,7 @@ export default function NoSearchHistoryCard() {
   const [camOpen, setCamOpen] = useState(false);
   return (
     <>
-      {/* <View style={styles.container}>
+      <View style={styles.container}>
       <TouchableOpacity disabled style={styles.recentCard}>
         <Text style={styles.heading}>You have no search history</Text>
         <Text style={styles.subHeading}>
@@ -31,7 +31,7 @@ export default function NoSearchHistoryCard() {
         <Image source={require("../assets/wait.png")} style={styles.image} />
       </TouchableOpacity>
 
-    </View> */}
+    </View>
 
       <ActionButton
         buttonColor="#2d3b6c"
