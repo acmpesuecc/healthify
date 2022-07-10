@@ -8,6 +8,7 @@ import SignUp from "../containers/SignUp";
 import Verify from "../Verify";
 import login from "../login";
 import SearchResults from "../containers/SearchResults";
+import searchForm from "../containers/searchForm";
 
 const screens = {
   
@@ -21,7 +22,7 @@ const screens = {
   First: {
     screen: FirstScreen,
     navigationOptions: {
-      title: "",
+      title: "firstscreen",
     },
   }, 
   
@@ -45,7 +46,18 @@ const screens = {
       title: "login",
     },
   },
+  // temp
+  
+  searchForm: {
+    screen: searchForm,
+    navigationOptions: {
+      title: "search-form",
+    },
+  },
 
+
+
+  // end temp
   Dashboard: {
     screen: Dashboard,
     navigationOptions: {
@@ -58,6 +70,7 @@ const screens = {
       title: "Not Found",
     },
   },
+
   SearchResults: {
     screen: SearchResults,
     navigationOptions: {
