@@ -199,7 +199,9 @@ async function getNetMeds(medName) {
   const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
   var arr = [];
-  await page.goto("https://www.netmeds.com/catalogsearch/result?q=" + medName);
+  await page.goto(
+    "https://www.netmeds.com/catalogsearch/result/" + medName + "/all"
+  );
   await page.waitForTimeout(1000);
 
   // await page.screenshot({path: 'screenshot.png'});
@@ -262,6 +264,7 @@ async function getPharmeasy(medName) {
   }
   await browser.close();
   // result = JSON.stringify(arr);
+  // console.log("Scraping data from Pharmeasy completed");
   return arr;
 }
 
@@ -333,7 +336,7 @@ app.get("/getMeds", async (req, res) => {
     for (i = 0; i < net_meds_medicines.length; i++) {
       net_meds_medicines[i].source = "NetMeds";
     }
-    
+
     all_med_details = net_meds_medicines.concat(pharm_easy_medicines);
     // console.log(all_med_details);
     medName = medName.replace("+", " ");

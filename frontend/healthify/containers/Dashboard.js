@@ -83,39 +83,41 @@ export default function Dashboard({ navigation }) {
     <SafeAreaView style={styles.container}>
       {loading && (
         <View style={styles.spin_container}>
-          <Text style={{color:"white"}}>Please wait while we get the best prices from popular sources..</Text>
+          <Text style={{ color: "white" }}>
+            Please wait while we get the best prices from popular sources..
+          </Text>
           <ActivityIndicator size="large" color="white" />
         </View>
       )}
       {/* <SearchBar /> */}
       <>
-      <View style={styles.searchContainer}>
-        <View style={styles.searchBar}>
-          {/* search Icon */}
-          <TouchableOpacity
-            onPress={() => {
-              setSelectedValue(text);
-              console.log(text);
-              setLoading(true);
-              searchMed(text, navigation);
-            }}
-          >
-            <Feather
-              name="search"
-              size={20}
-              color="black"
-              style={{ marginLeft: 1 }}
+        <View style={styles.searchContainer}>
+          <View style={styles.searchBar}>
+            {/* search Icon */}
+            <TouchableOpacity
+              onPress={() => {
+                setSelectedValue(text);
+                console.log(text);
+                setLoading(true);
+                searchMed(text, navigation);
+              }}
+            >
+              <Feather
+                name="search"
+                size={20}
+                color="black"
+                style={{ marginLeft: 1 }}
+              />
+            </TouchableOpacity>
+            {/* Input field */}
+            <TextInput
+              style={styles.input}
+              placeholder="Search"
+              value={text}
+              onChangeText={(text) => onChangeHandler(text)}
             />
-          </TouchableOpacity>
-          {/* Input field */}
-          <TextInput
-            style={styles.input}
-            placeholder="Search"
-            value={text}
-            onChangeText={(text) => onChangeHandler(text)}
-          />
+          </View>
         </View>
-      </View>
       </>
       {meds != null && text != ""
         ? meds.map((med, i) => (
