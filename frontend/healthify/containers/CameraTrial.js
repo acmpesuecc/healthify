@@ -22,12 +22,38 @@ export default function App() {
     if (cameraRef.current) {
       const options = { quality: 0.7, base64: true };
       const data = await cameraRef.current.takePictureAsync(options);
-      const source = data.base64;
+      const uri = data.uri;
+      let filename = uri.split("/").pop();
+      let match = /\.(\w+)$/.exec(filename);
+      let type = match ? `image/${match[1]}` : `image`;
 
-      if (source) {
+      if (uri) {
+        console.log(filename);
         await cameraRef.current.pausePreview();
         setIsPreview(true);
-        console.log(source);
+        // console.log(source);
+        //Upload to server
+        const data = new FormData();
+        data.append("file", {
+          name: filename,
+          type,
+          uri,
+        });
+
+        await fetch("http://192.168.1.18:3001/upload", {
+          method: "POST",
+          body: data,
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "multipart/form-data",
+          },
+        })
+          .then((response) => {
+            console.log(response);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
       }
     }
   };

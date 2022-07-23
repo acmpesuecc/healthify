@@ -5,6 +5,18 @@ require("dotenv").config();
 var bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const auth = require("./middleware/auth");
+var multer = require("multer");
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads");
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  },
+})
+const upload = multer({ storage: storage })
+
 const enc = require("./config/encryptionConfig.js");
 const cors = require("cors");
 const User = require("./models/User");
@@ -46,6 +58,12 @@ function sendMail(output, to) {
 
 app.get("/", (req, res) => {
   res.status(200).send("Welcome!");
+});
+
+
+app.post("/upload", upload.single("file"), (req, res) => {
+  console.log(req.file, req.body);
+  res.send("File uploaded successfully");
 });
 
 app.post("/register", async (req, res) => {
