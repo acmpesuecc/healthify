@@ -8,7 +8,6 @@ import {
 } from "react-native";
 import { Camera } from "expo-camera";
 import { AntDesign, MaterialIcons } from "@expo/vector-icons";
-
 const WINDOW_HEIGHT = Dimensions.get("window").height;
 const CAPTURE_SIZE = Math.floor(WINDOW_HEIGHT * 0.08);
 
@@ -21,39 +20,54 @@ export default function App() {
   const onSnap = async () => {
     if (cameraRef.current) {
       const options = { quality: 0.7, base64: true };
-      const data = await cameraRef.current.takePictureAsync(options);
-      const uri = data.uri;
+      const image = await cameraRef.current.takePictureAsync(options);
+      const uri = image.uri;
       let filename = uri.split("/").pop();
       let match = /\.(\w+)$/.exec(filename);
       let type = match ? `image/${match[1]}` : `image`;
 
       if (uri) {
-        console.log(filename);
         await cameraRef.current.pausePreview();
         setIsPreview(true);
-        // console.log(source);
-        //Upload to server
-        const data = new FormData();
-        data.append("file", {
-          name: filename,
-          type,
-          uri,
-        });
 
-        await fetch("http://192.168.1.18:3001/upload", {
+        //Upload to server
+        const form_data = new FormData();
+        // form_data.append("file", {
+        //   form_data.append({
+        //   name: filename,
+        //   type,
+        //   uri,
+        //   image
+        // });
+
+        form_data.append("image", image.base64);
+
+        const response = await fetch("https://api.imgur.com/3/image", {
           method: "POST",
-          body: data,
+          body: form_data,
           headers: {
+            Authorization: "Client-ID <IMGUR_CLIENT_ID>",
             Accept: "application/json",
             "Content-Type": "multipart/form-data",
           },
-        })
-          .then((response) => {
-            console.log(response);
-          })
-          .catch((error) => {
-            console.log(error);
+        });
+        const json = await response.json();
+        // console.log(json);
+        const link = json.data.link;
+        if (link) {
+          console.log("Uploaded successfully");
+          // console.log(link);
+          fetch("http://192.168.0.116:3001/upload", {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              link: link,
+            }),
           });
+        }
       }
     }
   };

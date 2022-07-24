@@ -34,7 +34,7 @@ export default function Dashboard({ navigation }) {
   // const [search, setSearch] = useState([]);
   async function searchMed(medicine, navigation) {
     const res = await axios.get(
-      `http://192.168.1.18:3001/getMeds?medicine=${medicine}`
+      `http://192.168.0.116:3001/getMeds?medicine=${medicine}`
     );
     meds_array = res.data;
     setLoading(false);

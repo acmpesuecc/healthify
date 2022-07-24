@@ -6,16 +6,9 @@ var bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const auth = require("./middleware/auth");
 var multer = require("multer");
+const ocr = require("./ocr.js");
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads");
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname);
-  },
-})
-const upload = multer({ storage: storage })
+// s
 
 const enc = require("./config/encryptionConfig.js");
 const cors = require("cors");
@@ -60,9 +53,11 @@ app.get("/", (req, res) => {
   res.status(200).send("Welcome!");
 });
 
-
-app.post("/upload", upload.single("file"), (req, res) => {
-  console.log(req.file, req.body);
+app.post("/upload", (req, res) => {
+  console.log(req.body);
+  //Use computerVision function from ocr.js
+  var result = ocr(req.body.link);
+  // console.log(result);
   res.send("File uploaded successfully");
 });
 
@@ -218,7 +213,9 @@ async function getNetMeds(medName) {
   const page = await browser.newPage();
   var arr = [];
   await page.goto(
-    "https://www.netmeds.com/catalogsearch/result/" + medName + "/all"
+    "https://www.netmeds.com/catalogsearch/result/" +
+      medName.replace("+", " ") +
+      "/all"
   );
   await page.waitForTimeout(1000);
 
@@ -260,12 +257,14 @@ async function getPharmeasy(medName) {
   // await page.screenshot({path: 'screenshot.png'});
 
   const names = await page.evaluate(() => {
-    return Array.from(document.querySelectorAll(".ooufh"))
+    return Array.from(
+      document.querySelectorAll(".ProductCard_medicineName__17En6")
+    )
       .map((x) => x.innerText)
       .splice(0, 10);
   });
   const prices = await page.evaluate(() => {
-    return Array.from(document.querySelectorAll("._1_yM9"))
+    return Array.from(document.querySelectorAll(".ProductCard_ourPrice__3fkJf"))
       .map((x) => x.innerText)
       .splice(0, 10);
   });
