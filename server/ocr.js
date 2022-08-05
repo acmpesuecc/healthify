@@ -33,10 +33,7 @@ const computerVisionClient = new ComputerVisionClient(
 //    console.log(results);
 //  });
 
-function computerVision(url) {
-  async.series([
-    async function () {
-
+async function computerVision(url) {
       /**
        * OCR: READ PRINTED & HANDWRITTEN TEXT WITH THE READ API
        * Extracts text from images using OCR (optical character recognition).
@@ -52,8 +49,8 @@ function computerVision(url) {
       // Recognize text in printed image from a URL
       console.log('Read printed text from URL...', printedTextSampleURL.split('/').pop());
       const printedResult = await readTextFromURL(computerVisionClient, printedTextSampleURL);
-      printRecText(printedResult);
-
+      return printRecText(printedResult);
+      
       // Perform read and await the result from URL
       async function readTextFromURL(client, url) {
         // To recognize text in a local image, replace client.read() with readTextInStream() as shown:
@@ -83,6 +80,7 @@ function computerVision(url) {
               if(medName)
               {
                 console.log(medName);
+                return medName;
               }
               // console.log(result_text);
             }
@@ -90,37 +88,6 @@ function computerVision(url) {
           else { console.log('No recognized text.'); }
         }
       }
-
-      /**
-       * 
-       * Download the specified file in the URL to the current local folder
-       * 
-       */
-      // function downloadFilesToLocal(url, localFileName) {
-      //   return new Promise((resolve, reject) => {
-      //     console.log('--- Downloading file to local directory from: ' + url);
-      //     const request = https.request(url, (res) => {
-      //       if (res.statusCode !== 200) {
-      //         console.log(`Download sample file failed. Status code: ${res.statusCode}, Message: ${res.statusMessage}`);
-      //         reject();
-      //       }
-      //       var data = [];
-      //       res.on('data', (chunk) => {
-      //         data.push(chunk);
-      //       });
-      //       res.on('end', () => {
-      //         console.log('   ... Downloaded successfully');
-      //         fs.writeFileSync(localFileName, Buffer.concat(data));
-      //         resolve();
-      //       });
-      //     });
-      //     request.on('error', function (e) {
-      //       console.log(e.message);
-      //       reject();
-      //     });
-      //     request.end();
-      //   });
-      // }
 
       function findDrug(searchString) {
         var output = false;
@@ -139,18 +106,6 @@ function computerVision(url) {
       /**
        * END - Recognize Printed & Handwritten Text
        */
-      console.log();
-      console.log('-------------------------------------------------');
-
-    },
-    function () {
-      return new Promise((resolve) => {
-        resolve();
-      })
-    }
-  ], (err) => {
-    throw (err);
-  });
 }
 
 // computerVision();

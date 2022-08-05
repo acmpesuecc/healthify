@@ -391,10 +391,9 @@ app.get("/getMeds", async (req, res) => {
 app.post("/upload", async (req, res) => {
     console.log(req.body);
     //Use computerVision function from ocr.js
-    let medNameText = ocr(req.body.link);
-    console.log(typeof(medNameText));
-    console.log(String(medNameText));
-    result = getMedsRoute(String(medNameText));
+    var medNameText = await ocr(req.body.link);
+    console.log(medNameText);
+    var result = await getMedsRoute(String(medNameText));
     console.log(result);
     res.send(result);
 });
