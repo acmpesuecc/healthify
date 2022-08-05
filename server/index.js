@@ -53,14 +53,6 @@ app.get("/", (req, res) => {
   res.status(200).send("Welcome!");
 });
 
-app.post("/upload", (req, res) => {
-  console.log(req.body);
-  //Use computerVision function from ocr.js
-  var result = ocr(req.body.link);
-  // console.log(result);
-  res.send("File uploaded successfully");
-});
-
 app.post("/register", async (req, res) => {
   try {
     const { name, password, dob, gender, phone_number, email } = req.body;
@@ -329,13 +321,11 @@ function editDistance(s1, s2) {
   return costs[s2.length];
 }
 
-app.get("/getMeds", async (req, res) => {
-  // console.log("here in get meds");
-  try {
-    // Pass medicine name as a parameter in the URL
-    medName = req.query.medicine;
+async function getMedsRoute(medName)
+{
     if (medName == null) {
-      res.status(400).send("Please enter a medicine name");
+      // res.status(400).send("Please enter a medicine name");
+      console.log("Please enter a medicine name");
     }
     //if medName has space
     else if (medName.indexOf(" ") != -1) {
@@ -381,11 +371,32 @@ app.get("/getMeds", async (req, res) => {
         .includes(medName.toLowerCase().split(" ")[0]);
     });
 
-    res.end(JSON.stringify(sorted_meds));
+    return sorted_meds;
+}
+
+app.get("/getMeds", async (req, res) => {
+  // console.log("here in get meds");
+  try {
+    // Pass medicine name as a parameter in the URL
+    console.log(typeof(req.query.medicine));
+    sortedMeds = await getMedsRoute(req.query.medicine);
+    res.end(JSON.stringify(sortedMeds));
     // console.log(medicines);
   } catch (err) {
     console.log(err);
   }
+});
+
+
+app.post("/upload", async (req, res) => {
+    console.log(req.body);
+    //Use computerVision function from ocr.js
+    let medNameText = ocr(req.body.link);
+    console.log(typeof(medNameText));
+    console.log(String(medNameText));
+    result = getMedsRoute(String(medNameText));
+    console.log(result);
+    res.send(result);
 });
 
 app.listen(3001, () => {

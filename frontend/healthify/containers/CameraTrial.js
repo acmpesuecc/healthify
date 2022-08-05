@@ -30,44 +30,46 @@ export default function App() {
         await cameraRef.current.pausePreview();
         setIsPreview(true);
 
-        //Upload to server
-        const form_data = new FormData();
-        // form_data.append("file", {
-        //   form_data.append({
-        //   name: filename,
-        //   type,
-        //   uri,
-        //   image
-        // });
-
-        form_data.append("image", image.base64);
-
-        const response = await fetch("https://api.imgur.com/3/image", {
-          method: "POST",
-          body: form_data,
-          headers: {
-            Authorization: "Client-ID <IMGUR_CLIENT_ID>",
-            Accept: "application/json",
-            "Content-Type": "multipart/form-data",
-          },
-        });
-        const json = await response.json();
-        // console.log(json);
-        const link = json.data.link;
-        if (link) {
-          console.log("Uploaded successfully");
-          // console.log(link);
-          fetch("http://192.168.0.116:3001/upload", {
+          //Upload to server
+          const form_data = new FormData();
+          // form_data.append("file", {
+          //   form_data.append({
+          //   name: filename,
+          //   type,
+          //   uri,
+          //   image
+          // });
+  
+          form_data.append("image", image.base64);
+  
+          const response = await fetch("https://api.imgur.com/3/image", {
             method: "POST",
+            body: form_data,
             headers: {
+              Authorization: "Client-ID e82a68bd825b9db",
               Accept: "application/json",
-              "Content-Type": "application/json",
+              "Content-Type": "multipart/form-data",
             },
-            body: JSON.stringify({
-              link: link,
-            }),
-          });
-        }
+          }).then(console.log('Image uploaded to imgur'));
+          const json = await response.json();
+          // console.log(json);
+          const link = json.data.link;
+          // console.log(link);
+          if (link) {
+            console.log("Uploaded successfully");
+            // console.log(link);
+              fetch("http://192.168.1.3:3001/upload", {
+                method: "POST",
+                headers: {
+                  Accept: "application/json",
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  link: link,
+                }),
+              })
+              .then(console.log('Image called to ocr api'));
+          }
       }
     }
   };

@@ -8,6 +8,9 @@ const createReadStream = require('fs').createReadStream
 const sleep = require('util').promisify(setTimeout);
 const ComputerVisionClient = require('@azure/cognitiveservices-computervision').ComputerVisionClient;
 const ApiKeyCredentials = require('@azure/ms-rest-js').ApiKeyCredentials;
+var XMLHttpRequest = require('xhr2');
+const csv = require('csv-parser')
+
 /**
  * AUTHENTICATE
  * This single client is used for all examples.
@@ -20,6 +23,15 @@ const computerVisionClient = new ComputerVisionClient(
 /**
  * END - Authenticate
  */
+ const drugData = "./assets/Drugs.csv";
+
+ const results = [];
+ fs.createReadStream(drugData)
+ .pipe(csv())
+ .on('data', (data) => results.push(data['Medicine Name']))
+//  .on('end', () => {
+//    console.log(results);
+//  });
 
 function computerVision(url) {
   async.series([
@@ -57,6 +69,7 @@ function computerVision(url) {
 
       // Prints all text from Read result
       function printRecText(readResults) {
+        var medName;
         console.log('Recognized text:');
         for (const page in readResults) {
           if (readResults.length > 1) {
@@ -65,7 +78,13 @@ function computerVision(url) {
           const result = readResults[page];
           if (result.lines.length) {
             for (const line of result.lines) {
-              console.log(line.words.map(w => w.text).join(' '));
+              var result_text = line.words.map(w => w.text).join(' '); 
+              medName = findDrug(result_text);
+              if(medName)
+              {
+                console.log(medName);
+              }
+              // console.log(result_text);
             }
           }
           else { console.log('No recognized text.'); }
@@ -77,30 +96,44 @@ function computerVision(url) {
        * Download the specified file in the URL to the current local folder
        * 
        */
-      function downloadFilesToLocal(url, localFileName) {
-        return new Promise((resolve, reject) => {
-          console.log('--- Downloading file to local directory from: ' + url);
-          const request = https.request(url, (res) => {
-            if (res.statusCode !== 200) {
-              console.log(`Download sample file failed. Status code: ${res.statusCode}, Message: ${res.statusMessage}`);
-              reject();
-            }
-            var data = [];
-            res.on('data', (chunk) => {
-              data.push(chunk);
-            });
-            res.on('end', () => {
-              console.log('   ... Downloaded successfully');
-              fs.writeFileSync(localFileName, Buffer.concat(data));
-              resolve();
-            });
-          });
-          request.on('error', function (e) {
-            console.log(e.message);
-            reject();
-          });
-          request.end();
-        });
+      // function downloadFilesToLocal(url, localFileName) {
+      //   return new Promise((resolve, reject) => {
+      //     console.log('--- Downloading file to local directory from: ' + url);
+      //     const request = https.request(url, (res) => {
+      //       if (res.statusCode !== 200) {
+      //         console.log(`Download sample file failed. Status code: ${res.statusCode}, Message: ${res.statusMessage}`);
+      //         reject();
+      //       }
+      //       var data = [];
+      //       res.on('data', (chunk) => {
+      //         data.push(chunk);
+      //       });
+      //       res.on('end', () => {
+      //         console.log('   ... Downloaded successfully');
+      //         fs.writeFileSync(localFileName, Buffer.concat(data));
+      //         resolve();
+      //       });
+      //     });
+      //     request.on('error', function (e) {
+      //       console.log(e.message);
+      //       reject();
+      //     });
+      //     request.end();
+      //   });
+      // }
+
+      function findDrug(searchString) {
+        var output = false;
+        for(var i = 0; i < results.length; i++)
+        {
+          var result = results[i].toLowerCase();
+          var searchStr = searchString.toLowerCase();
+          if(result.includes(searchStr))
+            output = searchStr;
+          else if(searchStr.includes(result))
+            output = result;
+        }
+        return output;
       }
 
       /**
