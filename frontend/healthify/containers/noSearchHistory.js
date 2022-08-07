@@ -13,6 +13,7 @@ import {
 import ActionButton from "react-native-action-button";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import CameraTrial from "./CameraTrial";
+import FloatingButton from "./FloatingButton";
 
 var { height, width } = Dimensions.get("window");
 import React, { useState } from "react";
@@ -33,7 +34,7 @@ export default function NoSearchHistoryCard() {
 
     </View>
 
-      <ActionButton
+      {/* <ActionButton
         buttonColor="#2d3b6c"
         size={0.15 * width}
         renderIcon={() => (
@@ -43,7 +44,9 @@ export default function NoSearchHistoryCard() {
           setCamOpen(!camOpen);
         }}
         style={styles.actionButton}
-      ></ActionButton>
+      ></ActionButton> */}
+      <FloatingButton  />
+      
       {camOpen && <CameraTrial />}
     </>
   );

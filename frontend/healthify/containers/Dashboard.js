@@ -15,6 +15,10 @@ import React, { useEffect, useState } from "react";
 import { Feather } from "@expo/vector-icons";
 import axios from "axios";
 import NoSearchHistoryCard from "./noSearchHistory";
+
+import FloatingButton from "./FloatingButton";
+
+
 var { height, width } = Dimensions.get("window");
 let meds_array = [];
 
@@ -154,7 +158,9 @@ export default function Dashboard({ navigation }) {
           ))
         : null}
       {text == "" && <NoSearchHistoryCard />}
+                {/* <FloatingButton/> */}
     </SafeAreaView>
+
   );
 }
 
